@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ForestSkylines/ForestSkylines.csproj" />
+  <Project Path="ImageToTreesBIN/ImageToTreesBIN.csproj" Id="1f6905dd-0d48-4190-840c-09282c5b99f1" />
 </Solution>
