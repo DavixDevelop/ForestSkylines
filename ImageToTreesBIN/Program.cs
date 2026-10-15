@@ -24,13 +24,13 @@ namespace ImageToTreesBIN
 				return;
 			}
 
-			TreesConfig treesConfig = null;
+			UnifiedJsonConfig jsonConfig = null;
 
 			try {
 				Console.WriteLine($"Parsking config file: {Path.GetFileName(configFilePath)}");
 				using (StreamReader configFile = File.OpenText(configFilePath)) {
 					JsonSerializer serializer = new JsonSerializer();
-					treesConfig = (TreesConfig)serializer.Deserialize(configFile, typeof(TreesConfig));
+					jsonConfig = (UnifiedJsonConfig)serializer.Deserialize(configFile, typeof(UnifiedJsonConfig));
 				}
 			}catch(Exception ex) {
 				Console.WriteLine($"There was an error while parsing config file: {ex.Message}.\nPlease make sure the config is a valid json file");
@@ -38,36 +38,59 @@ namespace ImageToTreesBIN
 				return;
 			}
 
-			if(treesConfig == null) {
+			if(jsonConfig == null) {
 				Console.WriteLine("Empty config file");
 				Console.ReadLine();
 				return;
 			}
 
+			if(!jsonConfig.TreesBinPath.EndsWith(".bin")) {
+				Console.WriteLine("The key 'trees_bin_path' in the config file must end with a .bin and be a valid file path");
+				Console.ReadKey();
+				return;
+			}
+
+			if(!jsonConfig.RasterConfig.TreesPngPath.EndsWith(".png")) {
+				Console.WriteLine("The key`vector.png_path` in the config file must end with a .png and be a valid file path");
+				Console.ReadKey();
+				return;
+			}
+
 			int tileSize = 512;
-			string rootPath = Path.GetDirectoryName(treesConfig.TreesPngPath);
+			string rootPath = Path.GetDirectoryName(jsonConfig.RasterConfig.TreesPngPath);
+
+			if(jsonConfig.ListID.Count != jsonConfig.ColorToID.Count) {
+				Console.WriteLine($"The key 'id_list' and 'color_to_id' in the config must have the same count of items ({jsonConfig.ListID.Count} != {jsonConfig.ColorToID.Count})");
+				Console.ReadKey();
+				return;
+			}
 
 			TreesBIN treesBIN = new TreesBIN { TreeCount = 0, ListID = new List<ushort>(), Buffers = new List<BufferedTreesCollection>()};
 
 			Dictionary<string, ushort> colorID = new Dictionary<string, ushort>();
-			foreach (ColorID col in treesConfig.ColorsID) {
-				if (!TryParseColor(col.Color, out string hex)) {
-					Console.WriteLine($"Invalid color hex: {col.Color} for ID: {col.ID}\n in config file");
+			ushort col_id;
+			string col_hex;
+			for (int i = 0; i < jsonConfig.ListID.Count; i++) {
+				col_id = jsonConfig.ListID[i];
+				col_hex = jsonConfig.ColorToID[i];
+
+				if (!TryParseColor(col_hex, out string hex)) {
+					Console.WriteLine($"Invalid color hex: {col_hex} for ID: {col_id}\n in config file");
 					Console.ReadKey();
 					return;
 				}
 
-				colorID.Add(hex, col.ID);
-				treesBIN.ListID.Add(col.ID);
+				colorID.Add(hex, col_id);
+				treesBIN.ListID.Add(col_id);
 			}
 
 			string colorHex;
 			short id;
 			BufferedTrees bufferedTrees = new BufferedTrees();
 
-			Console.WriteLine($"Parsing PNG image: {Path.GetFileName(treesConfig.TreesPngPath)}");
+			Console.WriteLine($"Parsing PNG image: {Path.GetFileName(jsonConfig.RasterConfig.TreesPngPath)}");
 			try {
-				using (var fileStream = File.OpenRead(treesConfig.TreesPngPath)) {
+				using (var fileStream = File.OpenRead(jsonConfig.RasterConfig.TreesPngPath)) {
 					var bitmap = new Bitmap(fileStream);
 
 					int width = bitmap.Width;
@@ -104,11 +127,10 @@ namespace ImageToTreesBIN
 
 			//treesBIN.Buffers != null && treesBIN.Buffers.Count > 0 && rootPath != null
 			if (treesBIN.Buffers != null && rootPath != null) {
-				Console.WriteLine("Generating trees.bin file...");
-				string treesBINPath = Path.Combine(rootPath, "trees.bin");
+				Console.WriteLine($"Generating {Path.GetFileName(jsonConfig.RasterConfig.TreesPngPath)} file...");
 
 				//Write data structure as binary file
-				using (var stream = File.Open(treesBINPath, FileMode.Create)) {
+				using (var stream = File.Open(jsonConfig.TreesBinPath, FileMode.Create)) {
 					using (var writer = new BinaryWriter(stream, Encoding.UTF8, false)) {
 						//File Header
 						writer.Write((byte)0x00);

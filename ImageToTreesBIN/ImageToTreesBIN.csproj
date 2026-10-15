@@ -83,7 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\TreesBIN.cs" />
-    <Compile Include="Model\TreesConfig.cs" />
+    <Compile Include="Model\UnifiedJsonConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Program2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
