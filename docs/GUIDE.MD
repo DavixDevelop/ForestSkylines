@@ -161,7 +161,7 @@ If not yet, download the `VectorToTreesBIN.py` file in the root of the repositor
 9. This opens a new sub-panel to the right. Here click on the **first** icon  ("Open Script…") and choose the downloaded script `VectorToTreesBIN.py`
 10. The script has two parameters:
     - `config_file_path`: Path to the JSON config file that we edited before
-    - `preview`: Change this to `True` if you wish to only preview how the trees will be placed in single feature/polygon (the first feature in the layer). <br>Changing this to `True` will also not generate the treesBIN file
+    - `preview`: Change this to `True` if you wish to only preview how the trees will be placed in single feature/polygon (the biggest feature by area in the layer)
 11. Save the changes made to the script by clicking on the **third** icon ("Save") and update as well the JSON config file with your inputs, ex. name of the now clipped forests polygon layer and other inputs as explained in the above **JSON Config file** section
 12. Run the script by pressing on the **fifth** icon ("Run")
 13. This creates a *QgsTask* that is run in the background. Once It’s done, after a while, depending on the complexity of vector layer and trees count, QGIS will send a notification. The script also outputs how many trees/points it has generated, which in most cases is less then the trees count, and how long it took to generate them and create the TreesBIN `.bin` file. This info can found in the bottom *Python Console* panel.

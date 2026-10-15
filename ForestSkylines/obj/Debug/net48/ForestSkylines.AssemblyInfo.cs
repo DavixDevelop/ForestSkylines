@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ForestSkylines")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aff46ed02b7a26c85618b81006d3c47d7520d44a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1128bbd688bc41344c14606636faad036e361f8")]
 [assembly: System.Reflection.AssemblyProductAttribute("ForestSkylines")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ForestSkylines")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -110,8 +110,6 @@ def writeBinaryFile(treesBIN : TreesBIN, filePath):
                     #Write X and Y tree location on the map
                     writer.write(struct.pack("<f", position.X))
                     writer.write(struct.pack("<f", position.Y))
-                
-        
 
 # Get the intersecting point if the point lies on the line
 def getIntersection(k, n, x1, y1, x2, y2, i):
@@ -255,11 +253,25 @@ def genTreeBIN(task, taskData):
 
         task.setProgress(0)
         
-        feature_id = 0
+        feature_index = 0
+        maxArea_feature_id = None
+        maxArea_feature = None
+
+        #If preview mode is true, get the ID of the biggest feature by area and use it for for the preview feature
+        if task_data.previewMode: 
+            for feature in layer.getFeatures():
+                geomArea = feature.geometry().area()
+                if maxArea_feature is None or geomArea > maxArea_feature:
+                    maxArea_feature = geomArea
+                    maxArea_feature_id = feature.id()
+
 
         for feature in layer.getFeatures():
-            feature_id += 1
-            task.setProgress((feature_id * 100) / layer.featureCount())
+            feature_index += 1
+            task.setProgress((feature_index * 100) / layer.featureCount())
+
+            if task_data.previewMode and maxArea_feature_id != feature.id():
+                continue
 
             geom = feature.geometry()
             center_point = geom.centroid().asPoint()
@@ -339,13 +351,9 @@ def genTreeBIN(task, taskData):
 
                 points_layer.commitChanges()
 
-                if taskData.previewMode:
-                    break
-
         taskData.setGeneratedCount(treesBIN.TreeCount)
         
-        if not taskData.previewMode:
-            writeBinaryFile(treesBIN, taskData.outputPath)
+        writeBinaryFile(treesBIN, taskData.outputPath)
         #    xmlTree = serializeTreeXML(treesBIN)
         #    xmlTree.write(taskData.outputPath, encoding='utf-8', xml_declaration=True)
 
