@@ -26,7 +26,8 @@ namespace ImageToTreesBIN
 					using(var reader = new BinaryReader(stream, Encoding.UTF8, false)) {
 						//Read header
 						var nullByte = reader.ReadByte();
-						var modName = reader.ReadString();
+						var modNameBytes = reader.ReadBytes(14);
+						var modName = Encoding.UTF8.GetString(modNameBytes);
 						var controlBit = reader.ReadByte();
 						var author = reader.ReadChar();
 						var vers = reader.ReadByte();
@@ -58,19 +59,17 @@ namespace ImageToTreesBIN
 							var buffersCount = reader.ReadUInt16();
 							Console.WriteLine($"Buffers Count: ${buffersCount}");
 							for (int b = 0; b < buffersCount; b++) {
-								var posX = reader.ReadUInt16();
-								var posY = reader.ReadUInt16();
 								var bufferedTreesCount = reader.ReadUInt16();
 
-								Console.WriteLine($"PosX: {posX} PosY: {posY}: Buffered Trees Count: {bufferedTreesCount}");
+								Console.WriteLine($"Buffered Trees Count: {bufferedTreesCount}");
 								for (int i = 0; i < bufferedTreesCount; i++) {
 									var treeID = reader.ReadUInt16();
 									var treePositionsCount = reader.ReadUInt16();
 									Console.WriteLine($"TreeID: {treeID} Positions ({treePositionsCount}): ");
 
 									for (int p = 0; p < treePositionsCount; p++) {
-										var x = reader.ReadUInt16();
-										var y = reader.ReadUInt16();
+										var x = (mode == 0x01) ? reader.ReadUInt16() : reader.ReadSingle();
+										var y = (mode == 0x01) ? reader.ReadUInt16() : reader.ReadSingle();
 										//Console.WriteLine($"{x}:{y}");
 									}
 								}

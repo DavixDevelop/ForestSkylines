@@ -112,46 +112,42 @@ namespace ImageToTreesBIN
 					using (var writer = new BinaryWriter(stream, Encoding.UTF8, false)) {
 						//File Header
 						writer.Write((byte)0x00);
-						writer.Write("ForestSkylines");
+						writer.Write(Encoding.UTF8.GetBytes("ForestSkylines"));
 						writer.Write((byte)0x89);
 						writer.Write('D');
 						writer.Write((byte)0x01);
 
-						//Data Block:
+						//Data Block
 						//1 as raster mode 
 						writer.Write((byte)0x01);
 						//Width and height of raster
 						writer.Write(treesBIN.Width); //Offset 0x01
 						writer.Write(treesBIN.Height); //Offset 0x03
-													   //Tree count
+						//Tree count
 						writer.Write(treesBIN.TreeCount); //Offset 0x05
 
-						//Write list id count
+						//Write list ID count
 						writer.Write((ushort)treesBIN.ListID.Count); //Offset 0x09
 						foreach (ushort _id in treesBIN.ListID)
 							writer.Write(_id); //Offset 0x0b
 
 						//Write buffers count
 						writer.Write((ushort)treesBIN.Buffers.Count); //Offset 0x0d
-						 //Write buffers
+						//Write buffers
 						foreach (BufferedTreesCollection col in treesBIN.Buffers) {
-							//Write X and Y pos of tile
-							writer.Write(col.PosX); //Offset 0x11
-							writer.Write(col.PosY); //Offset 0x13
-
 							//Write buffered trees count
-							writer.Write((ushort)col.BufferedTrees.Count); //Offset 0x15
+							writer.Write((ushort)col.BufferedTrees.Count); //Offset 0x11
 							//Write buffered trees
-							foreach(BufferedTrees trees in col.BufferedTrees) {
-								//Wirte ID and count of positions
-								writer.Write(trees.ID); //Offset 0x17
-								writer.Write((ushort)trees.Positions.Count); //0x19
+							foreach (BufferedTrees trees in col.BufferedTrees) {
+								//Write ID and count of positions
+								writer.Write(trees.ID); //Offset 0x13
+								writer.Write((ushort)trees.Positions.Count); //0x15
 
-								//Write pixel postion offsets within tile
-								foreach(Position position in trees.Positions) {
-									//Write X and Y offset
-									writer.Write(position.X); //Offset 0x1e
-									writer.Write(position.Y); //Offset 0x1f
+								//Write pixel position location within image
+								foreach (Position position in trees.Positions) {
+									//Write X and Y pixel location
+									writer.Write(position.X); //Offset 0x1a
+									writer.Write(position.Y); //Offset 0x1b
 								}
 							}
 
@@ -234,7 +230,7 @@ namespace ImageToTreesBIN
 									colBufferedTrees.Add(colorHex, bufferedTrees);
 								}
 
-								bufferedTrees.Positions.Add(new Position() { X = (ushort)x, Y = (ushort)(tileHeight - y) });
+								bufferedTrees.Positions.Add(new Position() { X = (ushort)(tileX + x), Y = (ushort)(height - (tileY + y) - 1)});
 								treesBIN.TreeCount++;
 								colBufferedTrees[colorHex] = bufferedTrees;
 							}

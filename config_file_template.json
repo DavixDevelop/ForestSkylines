@@ -1,0 +1,16 @@
+{
+    "id_list" : [1, 2],
+    "color_to_id" : ["#f82bde", "#20a8a2"], 
+    "trees_bin_path" : "C://Users/user/Games/Cities Skylines 2/Map/forest.bin",
+    "raster" : {
+        "png_path" : "C://Users/user/Games/Cities Skylines 2/Map/forest.png"
+    },
+    "vector" : {
+        "attributes" : [ "oak1", "spruce2"],
+        "polygon_layer" : "ForestComposition",
+        "map_extent" : [513477, 527813, 129423, 115087],
+        "play_area_offset" : 1247,
+        "trees_count" : 1400000,
+        "non_play_area_tree_count": 167122
+    }
+}
