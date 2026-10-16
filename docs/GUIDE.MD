@@ -63,7 +63,7 @@ Now that we are familiar with the concept of `composition ID's`, you can either 
 
 With the raster now prepared you can continue with the guide.
 ### A. JSON config file
-If not yet, download the `config_file_template.json` in the root of the repository and edit it for the raster workload:<br>
+If not yet, download the `config_file_template.json` in the root of the repository, open it in your text editor and edit it for the raster workload:<br>
 ```json
 {
   "id_list" : [1, 2],
@@ -91,28 +91,30 @@ Before we get started, we must first get ourselves with the concept of forest co
 
 Next up, we must also get ourselves familiarized with the concept of `composition ID’s`, which is instead of the full composition name, ex `oak1`, an **integer unique identifier**, in this case, `1`. It can be any integer, as longs as each composition is a unique integer. With both concepts familiarized we just need to now generate the positions of the trees for each `composition ID` and store the data in a file, in this case a binary `TreesBIN` file, instead of directly using the vector tree layer in-game. Reason why is because generating points in polygon, on mass, that are effectively spaced between, yet random is a time and resource consuming process, something not quite suitable for a game like Cities: Skylines 2 or any other game for the matter.
 
-Now, we must first foremost need a suitable trees vector layer before we get started.  
+Now that we are familiarized with the concept of forest compositions, you must find a suitable polygon forest cover Shapefile, but as noted, this guide will not cover this topic. 
 
 ![](/images/VectorTreesPositionsExample.png)
 *Vector tree layer and derived trees positions from vector data*
 
-This example will show the data downloaded from *Slovenian Forestry Institute*, but in most cases you should be able to request the composition tree vector data from your **national forest institute** website, as long as the tree vector data stores the composition of the forest in percentages from **0 to 100%**, which should be noted in the documentation or on the national forest institute website itself. With the data download, continue with the guide.
+> This example will show the data downloaded from *Slovenian Forestry Institute*, but in most cases you should be able to request the composition tree vector data from your **national forest institute** website, as long as the tree vector data stores the composition of the forest in percentages from **0 to 100%**, which should be noted in the documentation or on the national forest institute website itself. With the data download, continue with the guide.
 
-### Bounding box
-If you do not yet have a bounding box Shapefile in the extent of **14336x14336 meters** follow this section, else continue to the next section. To create the Shapefile, we'll be using the plugin `BBox Visualizer`.
-1. Open QGIS and click on the right bottom button to set the Project CRS
+With the suitable Shapefile obtained, follow the next instructions and sections:
+1. Open QGIS and click on the right bottom button to set the **Project CRS**
 2. Search for the projection you wish to use, ex. the native projection of your location, **EPSG:3794** in this example, select it and press `OK`
-3. Navigate to the `Plugins->Manage and Install Plugins...`, under the tab *All* search for `BBox Visualizer`, install the plugin and `Close` the window
-4. In the Menu bar navigate to `Vector->BBox Visualizer->Visualize BBox`
-5. In the new window, make sure the *Select CRS* is set to your CRS and enter your extent in the format of **minx,miny,maxx,maxy**, in this example: *513477,115087,527813,129423*
-6. Press `Visualize BBox` and a new **temporary** layer will be created, as shown under the *Layers* panel
-7. To save it, right-click on the layer in the *Layers* panel and click on `Make Permanent...`
-8. In the newly opened window under *File name* click on the `...` dots, save it to a suitable folder and press `OK`
-9. Now a popup should show on top of the map, requesting you to rename the layer to match it with the name of the file.
+3. Save the QGIS project with `CTRL+S` and **continue saving it as you progress** through the instructions as you may need to modify the polygon forests cover. 
 
-With the bounding box layer created, save the QGIS project (*CTRL+S*) and continue with the guide.
-### JSON Config file
-Same as with the raster workload, the vector load uses the config file as well, so if not yet, download the `config_file_template.json` in the root of the repository and edit it for the vector workload with your data:<br>
+### A. Bounding box
+If you do not yet have a bounding box Shapefile in the extent of **14336x14336 meters** follow this section, else drag-and-drop your *Bounding box Shapefile* into QGIS and continue to the next section. To create the Shapefile, we'll be using the plugin `BBox Visualizer`.
+1. Navigate to the `Plugins->Manage and Install Plugins...`, under the tab *All* search for `BBox Visualizer`, install the plugin and `Close` the window
+2. In the Menu bar navigate to `Vector->BBox Visualizer->Visualize BBox`
+3. In the new window, make sure the *Select CRS* is set to your CRS and enter your extent in the format of **minx,miny,maxx,maxy**, in this example: *513477,115087,527813,129423*
+4. Press `Visualize BBox` and a new **temporary** layer will be created, as shown under the *Layers* panel
+5. To save it, right-click on the layer in the *Layers* panel and click on `Make Permanent...`
+6. In the newly opened window under *File name* click on the `...` dots, save it to a suitable folder and press `OK`
+7. Now a popup should show on top of the map, requesting you to rename the layer to match it with the name of the file.
+
+### B. JSON Config file
+Same as with the raster workload, the vector load uses the config file as well, so if not yet, download the `config_file_template.json` in the root of the repository, open it with a text editor and edit it for the vector workload with your data based on the explanations in the **key definitions** bellow:<br>
 ```json
 {
     "id_list" : [11, 21, 30, 34, 39, 41, 50, 60, 70, 80],
@@ -143,25 +145,26 @@ Same as with the raster workload, the vector load uses the config file as well, 
 | `vector.trees_count` | integer | How many trees you wish to place on the map |
 | `vector.non_play_area_tree_count` | integer | How many trees you wish to place outside the play area. In turn, `trees_count` get subtracted from this. |
 
-### VectorToTreesBIN Script
-If not yet, download the `VectorToTreesBIN.py` file in the root of the repository and continue with the guide.<br>
-1. Open QGIS and click on the right bottom button to set the Project CRS
-2. Search for the projection you wish to use, ex. the native projection of your location, **EPSG:3794** in this example, select it and press `OK`
-3. Drag-and-drop you forest Shapefile as well as your Bounding box Shapefile into the window
-4. Once again make sure that the forest vector layer has the appropriate attributes for `composition` percentages, by going to `View->Identify Features` in the Menu bar. Click on a polygon on the map, and the feature attributes will be shown on the right. There should be attributes that together **sum up to 100%** like shown in the image bellow. If they are, continue on, but if not, you can contact me on Discord under **@davixdevelop**, and I’m sure I can help resolve the issue.
+### C. VectorToTreesBIN Script
+If not yet, download the `VectorToTreesBIN.py` file in the root of the repository and continue with the guide in QGIS.<br>
+1. Drag-and-drop you polygon forest cover Shapefile into the QGIS window
+2. Once again make sure that the forest vector layer has the appropriate attributes for `composition` percentages, by going to `View->Identify Features` in the Menu bar. Click on a polygon on the map, and the feature attributes will be shown on the right. There should be attributes that together **sum up to 100%** like shown in the image bellow. If they are, continue on, but if not, you can contact me on Discord under **@davixdevelop**, and I’m sure I can help resolve the issue.
 
 ![](/images/AttributeTableCompostionPercentages.png)
 *Attribute table of a vector tree layer with composition percentages*
 
-5. Crop your forest layer by navigating to `Vector->Geoprocessing Tools->Intersection...` in the Menu bar. In the newly opened window, for *Input layer* choose your forest layer, while for the *Overlay layer* choose your BBox layer. Under the *Intersection* click on the `...` button to save the new layer to a Shapefile and click `Run`
+3. Crop your forest layer by navigating to `Vector->Geoprocessing Tools->Intersection...` in the Menu bar. In the newly opened window, for *Input layer* choose your forest layer, while for the *Overlay layer* choose your BBox layer. Under the *Intersection* click on the `...` button to save the new layer to a Shapefile and click `Run`
 > **Note**: You may receive an *invalid geometry* error. To fix this error, **don't close the Vector Overlay window** and under the *Processing Toolbox* (if you don't see the toolbox, enable it under `View->Panels->Processing Toolbox`) search for *Fix geometries*. Open the tool and under *Input layer* choose your forest layer. Now click on `Run` and a temporary layer named `Fixed geometries` will be created which you can rename with `F2`. Now back in the `Vector Overlay - Intersection` windows choose this new layer for *Overlay layer* and run the tool again.
-6.  The now cropped forest layer may have a `?` button in the *Layers* panel. Click on it to set the layer CRS to your CRS like in step 2.
-7. Hide the original non-cropped forest layer by unchecking the checkbox for it in the *Layers* panel
-8. Navigate to  `Plugins->Python Console` in the Menu bar and in the newly opened panel on the bottom, click the **third** icon ("Show Editor")
-9. This opens a new sub-panel to the right. Here click on the **first** icon  ("Open Script…") and choose the downloaded script `VectorToTreesBIN.py`
-10. The script has two parameters:
+4.  The now cropped forest layer may have a `?` button in the *Layers* panel. Click on it to set the layer CRS to your CRS like we did it for the **Project CRS**
+5. Hide the original non-cropped forest layer by unchecking the checkbox for it in the *Layers* panel
+6. Navigate to  `Plugins->Python Console` in the Menu bar and in the newly opened panel on the bottom, click the **third** icon ("Show Editor")
+7. This opens a new sub-panel to the right. Here click on the **first** icon  ("Open Script…") and choose the downloaded script `VectorToTreesBIN.py`
+8. The script has two parameters:
     - `config_file_path`: Path to the JSON config file that we edited before
     - `preview`: Change this to `True` if you wish to only preview how the trees will be placed in single feature/polygon (the biggest feature by area in the layer)
-11. Save the changes made to the script by clicking on the **third** icon ("Save") and update as well the JSON config file with your inputs, ex. name of the now clipped forests polygon layer and other inputs as explained in the above **JSON Config file** section
-12. Run the script by pressing on the **fifth** icon ("Run")
-13. This creates a *QgsTask* that is run in the background. Once It’s done, after a while, depending on the complexity of vector layer and trees count, QGIS will send a notification. The script also outputs how many trees/points it has generated, which in most cases is less then the trees count, and how long it took to generate them and create the TreesBIN `.bin` file. This info can found in the bottom *Python Console* panel.
+9. Save the changes made to the script by clicking on the **third** icon ("Save") and update as well the JSON config file with your inputs, ex. name of the now clipped forests polygon layer and other inputs as explained in the above **JSON Config file** section
+10. Run the script by pressing on the **fifth** icon ("Run")
+11. This creates a *QgsTask* that is run in the background. Once It’s done, after a while, depending on the complexity of vector layer and trees count, QGIS will send a notification. The script also outputs how many trees/points it has generated, which in most cases is less then the trees count, and how long it took to generate them and create the TreesBIN `.bin` file. This info can found in the bottom *Python Console* panel.
+
+## Using the TreesBIN file in the mod
+#ToDo
